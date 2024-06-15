@@ -13,6 +13,17 @@ public class ScreenMap extends Canvas {
     final int screenWidth = tileSize * maxScreenCol; //768 px
     final int screenHeight = tileSize * maxScreenRow; //576 px
 
+    //World settings
+    public final int maxWorldCol = 50;
+    public final int maxWorldRow = 50;
+    public final int worldWidth = tileSize * maxWorldCol;
+    public final int worldHeight = tileSize * maxWorldRow;
+    final int maxScreenWidth = tileSize * maxWorldCol;
+    final int maxScreenHeight = tileSize * maxWorldRow;
+
+    //Collision Checker
+    //public CollisionChecker collisionChecker = new CollisionChecker(this);
+
     public ScreenMap() {
         this.setWidth(screenWidth);
         this.setHeight(screenHeight);
@@ -35,5 +46,28 @@ public class ScreenMap extends Canvas {
 
     public int getScreenHeight() {
         return screenHeight;
+    }
+
+    public int getMaxWorldCol() {
+        return maxWorldCol;
+    }
+    public int getMaxWorldRow() {
+        return maxWorldRow;
+    }
+
+    public int getWorldWidth() {
+        return worldWidth;
+    }
+
+    public int getWorldHeight() {
+        return worldHeight;
+    }
+
+    public int getMaxScreenWidth() {
+        return maxScreenWidth;
+    }
+
+    public int getMaxScreenHeight() {
+        return maxScreenHeight;
     }
 }

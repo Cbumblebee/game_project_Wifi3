@@ -1,5 +1,6 @@
 package com.example.pharaohgame_try2.tile;
 import com.example.pharaohgame_try2.DisplayedObject;
+import com.example.pharaohgame_try2.PlayerCharacter;
 import com.example.pharaohgame_try2.ScreenMap;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -9,17 +10,23 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class TileManager extends DisplayedObject {
-    Tile[] tile;
+    public Tile[] tile;
     GraphicsContext bgGc;
     ScreenMap bgScreen;
-    int[][] mapTileNumber;
-    public TileManager(GraphicsContext bgGc, ScreenMap bgScreen) {
+    public int[][] mapTileNumber;
+    PlayerCharacter playerCharacter;
+    public TileManager(GraphicsContext bgGc, ScreenMap bgScreen, PlayerCharacter playerCharacter) {
+
         this.bgGc = bgGc;
         this.bgScreen = bgScreen;
+        this.playerCharacter = playerCharacter;
+
         tile = new Tile[10];
-        mapTileNumber = new int[bgScreen.getMaxScreenCol()][bgScreen.getMaxScreenRow()];
+        mapTileNumber = new int[bgScreen.getMaxWorldCol()][bgScreen.getMaxWorldRow()];
+
         getTileImage();
-        loadMap("/com/example/pharaohgame_try2/maps/map01.txt");
+
+        loadMap("/com/example/pharaohgame_try2/maps/world01.txt");
     }
 
     public void getTileImage() {
@@ -31,16 +38,18 @@ public class TileManager extends DisplayedObject {
 
         tile[1] = new Tile();
         tile[1].image = new Image(getClass().getResource(imgPath+"concrete.png").toString()); //
-        //  tile[1].image = new Image(String.valueOf(HelloApplication.class.getResource("tiles"+File.separator+"sandstone.png")));
+        tile[1].collision = true;
 
         tile[2] = new Tile();
         tile[2].image = new Image(getClass().getResource(imgPath+"water.png").toString()); //
-        // tile[2].image = new Image(String.valueOf(HelloApplication.class.getResource("tiles"+File.separator+"concrete.png")));
+        tile[2].collision = true;
+
         tile[3] = new Tile();
         tile[3].image = new Image(getClass().getResource(imgPath+"earth.png").toString()); //
 
         tile[4] = new Tile();
         tile[4].image = new Image(getClass().getResource(imgPath+"tree.png").toString()); //
+        tile[4].collision = true;
 
         tile[5] = new Tile();
         tile[5].image = new Image(getClass().getResource(imgPath+"sand.png").toString()); //
@@ -54,18 +63,18 @@ public class TileManager extends DisplayedObject {
             int col = 0;
             int row = 0;
 
-            while (col < bgScreen.getMaxScreenCol() && row < bgScreen.getMaxScreenRow()) { //get to the first cell
+            while (col < bgScreen.getMaxWorldCol() && row < bgScreen.getMaxWorldRow()) { //get to the first cell
                 String line = bufferedReader.readLine(); //gives a String of the first line i suppose
                 System.out.println(line);
 
-                while (col < bgScreen.getMaxScreenCol()) {
+                while (col < bgScreen.getMaxWorldCol()) {
                     //fills out line by line
                     String[] numbers = line.split(" "); //gives a String
                     int num = Integer.parseInt(numbers[col]); //str -> int
                     mapTileNumber[col][row] = num;
                     col++;
                 }
-                if (col == bgScreen.getMaxScreenCol()) {
+                if (col == bgScreen.getMaxWorldCol()) {
                     col = 0;
                     row++;
                 }
@@ -77,29 +86,37 @@ public class TileManager extends DisplayedObject {
 
     }
     public void draw() {
-        //bgGc.drawImage(tile[0].image,0,0, bgScreen.getTileSize(), bgScreen.getTileSize());
-        //bgGc.drawImage(tile[1].image,48,0, bgScreen.getTileSize(), bgScreen.getTileSize());
-        //bgGc.drawImage(tile[2].image,96,0, bgScreen.getTileSize(), bgScreen.getTileSize());
+        int worldCol = 0;
+        int worldRow = 0;
 
-        int col = 0;
-        int row = 0;
-        int x = 0;
-        int y = 0;
+        while(worldCol < bgScreen.getMaxWorldCol() && worldRow < bgScreen.getMaxWorldRow()) {
 
-        while(col < bgScreen.getMaxScreenCol() && row < bgScreen.getMaxScreenRow()) {
-            int tileNum = mapTileNumber[col][row];
+            int tileNum = mapTileNumber[worldCol][worldRow];
 
-            bgGc.drawImage(tile[tileNum].image,x,y, bgScreen.getTileSize(), bgScreen.getTileSize());
+            int worldX = worldCol * bgScreen.getTileSize();
+            int worldY = worldRow * bgScreen.getTileSize();
+            int screenX = worldX - playerCharacter.getWorldXCoordinate() + playerCharacter.getScreenXCoordinate();
+            int screenY = worldY - playerCharacter.getWorldYCoordinate() + playerCharacter.getScreenYCoordinate();
 
-            col++;
-            x += bgScreen.getTileSize();
 
-            if(col == bgScreen.getMaxScreenCol()) {
-                col = 0;
-                x = 0;
-                row++;
-                y += bgScreen.getTileSize();
+            if (worldX + bgScreen.getTileSize() * 2 > playerCharacter.getWorldXCoordinate() - playerCharacter.getScreenXCoordinate() &&
+                worldX - bgScreen.getTileSize() * 2 < playerCharacter.getWorldXCoordinate() + playerCharacter.getScreenXCoordinate() &&
+                worldY + bgScreen.getTileSize() * 2 > playerCharacter.getWorldYCoordinate() - playerCharacter.getScreenYCoordinate() &&
+                worldY - bgScreen.getTileSize() * 2 < playerCharacter.getWorldYCoordinate() + playerCharacter.getScreenYCoordinate()) {
+
+                bgGc.drawImage(tile[tileNum].image,screenX,screenY, bgScreen.getTileSize(), bgScreen.getTileSize());
+            }
+
+
+            worldCol++;
+
+            if(worldCol == bgScreen.getMaxWorldCol()) {
+                worldCol = 0;
+                //x = 0;
+                worldRow++;
+                //y += bgScreen.getTileSize();
             }
         }
     }
+
 }
